@@ -27,8 +27,7 @@ export async function POST(request: Request) {
         await writeFile(filepath, buffer)
 
         return NextResponse.json({
-            success: true,
-            url: `/uploads/${filename}`
+            url: `/api/images/${filename}`
         })
     } catch (error) {
         console.error('Upload error:', error)
