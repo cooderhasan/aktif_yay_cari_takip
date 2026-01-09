@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Save, Settings, LogOut, Globe, FileImage, CloudCog } from 'lucide-react'
+import { Save, Settings, LogOut, Globe, FileImage, CloudCog, Upload, Loader2 } from 'lucide-react'
 
 // Settings fetch
 async function getSettings() {
@@ -70,6 +70,37 @@ export default function SettingsPage() {
             alert('Hata: ' + error.message)
         }
     })
+
+    const [uploadingLogo, setUploadingLogo] = useState(false)
+    const [uploadingFavicon, setUploadingFavicon] = useState(false)
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'logoUrl' | 'faviconUrl') => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        if (field === 'logoUrl') setUploadingLogo(true)
+        else setUploadingFavicon(true)
+
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            })
+
+            if (!res.ok) throw new Error('Yükleme başarısız')
+
+            const data = await res.json()
+            setFormData(prev => ({ ...prev, [field]: data.url }))
+        } catch (error) {
+            alert('Dosya yüklenirken hata oluştu')
+        } finally {
+            if (field === 'logoUrl') setUploadingLogo(false)
+            else setUploadingFavicon(false)
+        }
+    }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -150,12 +181,31 @@ export default function SettingsPage() {
                     <CardContent className="space-y-4">
                         <div className="grid gap-2">
                             <Label htmlFor="logoUrl">Logo URL</Label>
-                            <Input
-                                id="logoUrl"
-                                value={formData.logoUrl}
-                                onChange={(e) => setFormData(prev => ({ ...prev, logoUrl: e.target.value }))}
-                                placeholder="/logo.png veya https://..."
-                            />
+                            <div className="flex gap-2">
+                                <Input
+                                    id="logoUrl"
+                                    value={formData.logoUrl}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, logoUrl: e.target.value }))}
+                                    placeholder="/logo.png veya https://..."
+                                />
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        id="logoUpload"
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={(e) => handleFileUpload(e, 'logoUrl')}
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => document.getElementById('logoUpload')?.click()}
+                                        disabled={uploadingLogo}
+                                    >
+                                        {uploadingLogo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                                    </Button>
+                                </div>
+                            </div>
                             <p className="text-xs text-muted-foreground">
                                 Logo dosyasının yolu (önerilen boyut: 150x40 piksel)
                             </p>
@@ -193,12 +243,31 @@ export default function SettingsPage() {
                     <CardContent className="space-y-4">
                         <div className="grid gap-2">
                             <Label htmlFor="faviconUrl">Favicon URL</Label>
-                            <Input
-                                id="faviconUrl"
-                                value={formData.faviconUrl}
-                                onChange={(e) => setFormData(prev => ({ ...prev, faviconUrl: e.target.value }))}
-                                placeholder="/favicon.ico"
-                            />
+                            <div className="flex gap-2">
+                                <Input
+                                    id="faviconUrl"
+                                    value={formData.faviconUrl}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, faviconUrl: e.target.value }))}
+                                    placeholder="/favicon.ico"
+                                />
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        id="faviconUpload"
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={(e) => handleFileUpload(e, 'faviconUrl')}
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => document.getElementById('faviconUpload')?.click()}
+                                        disabled={uploadingFavicon}
+                                    >
+                                        {uploadingFavicon ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                                    </Button>
+                                </div>
+                            </div>
                             <p className="text-xs text-muted-foreground">
                                 Favicon dosyasinin yolu (ornek: /favicon.ico veya tam URL)
                             </p>
