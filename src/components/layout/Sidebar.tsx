@@ -79,6 +79,7 @@ export function Sidebar() {
                 md:translate-x-0
                 border-r border-slate-800/50
                 shadow-2xl shadow-slate-900/50
+                print:hidden
             `}>
                 {/* Header with Logo */}
                 <div className="p-6 border-b border-slate-800/50">
