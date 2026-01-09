@@ -93,13 +93,13 @@ export default function ProposalDetailPage() {
 
             {/* A4 Preview Container */}
             <div className="flex justify-center bg-slate-100 print:bg-white p-4 md:p-8 print:p-0 min-h-screen">
-                <div className="
+                <div className={`
                     bg-white shadow-xl print:shadow-none 
                     w-full max-w-[210mm] min-h-[297mm] 
                     p-[10mm] md:p-[20mm] print:p-0 
                     flex flex-col justify-between 
                     text-sm leading-relaxed
-                ">
+                `}>
                     {/* --- REPORT CONTENT START --- */}
 
                     {/* Header */}
