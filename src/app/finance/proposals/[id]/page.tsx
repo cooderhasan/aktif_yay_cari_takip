@@ -95,7 +95,8 @@ export default function ProposalDetailPage() {
             <div className="flex justify-center bg-slate-100 print:bg-white p-4 md:p-8 print:p-0 min-h-screen">
                 <div className={`
                     bg-white shadow-xl print:shadow-none 
-                    w-full max-w-[210mm] min-h-[297mm] 
+                    w-full max-w-[210mm] print:max-w-none 
+                    min-h-[297mm] print:min-h-0
                     p-[10mm] md:p-[20mm] print:p-0 
                     flex flex-col justify-between 
                     text-sm leading-relaxed
@@ -274,8 +275,8 @@ export default function ProposalDetailPage() {
             <style jsx global>{`
                 @media print {
                     @page {
-                        margin: 0;
-                        size: auto;
+                        margin: 10mm;
+                        size: A4;
                     }
                     body {
                         background: white;
