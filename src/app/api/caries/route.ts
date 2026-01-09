@@ -91,7 +91,15 @@ export async function POST(request: Request) {
                 defaultCurrencyId: currency.id,
                 openingBalance: body.openingBalance || 0,
                 openingBalanceCurrencyId: currency.id, // Varsayılan olarak aynı kabul ediyoruz şimdilik
-                isActive: true
+                isActive: true,
+                address: body.address,
+                phone: body.phone,
+                email: body.email,
+                city: body.city,
+                district: body.district,
+                taxNumber: body.taxNumber,
+                taxOffice: body.taxOffice,
+                notes: body.notes
             }
         })
 

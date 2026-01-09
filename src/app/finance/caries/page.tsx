@@ -12,14 +12,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-    DialogFooter
-} from '@/components/ui/dialog'
+
 import {
     Select,
     SelectContent,
@@ -38,25 +31,10 @@ async function getCaries() {
     return res.json()
 }
 
-// Yeni Cari Ekleme
-async function createCari(data: any) {
-    const res = await fetch('/api/caries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    if (!res.ok) throw new Error('Oluşturulamadı')
-    return res.json()
-}
+
 
 export default function CariesPage() {
-    const [isCreateOpen, setIsCreateOpen] = useState(false)
-    const [newCari, setNewCari] = useState({
-        title: '',
-        type: 'CUSTOMER',
-        defaultCurrencyCode: 'TL',
-        openingBalance: 0
-    })
+
 
     // Filtreleme state'leri
     const [searchQuery, setSearchQuery] = useState('')
@@ -96,19 +74,7 @@ export default function CariesPage() {
         })
     }, [caries, searchQuery, typeFilter, balanceFilter])
 
-    const createMutation = useMutation({
-        mutationFn: createCari,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['caries'] })
-            setIsCreateOpen(false)
-            setNewCari({ title: '', type: 'CUSTOMER', defaultCurrencyCode: 'TL', openingBalance: 0 })
-        }
-    })
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        createMutation.mutate(newCari)
-    }
 
     // Excel Export
     const exportToExcel = async () => {
@@ -211,73 +177,9 @@ export default function CariesPage() {
                         <FileText className="mr-2 h-4 w-4" /> PDF
                     </Button>
 
-                    <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                        <DialogTrigger asChild>
-                            <Button><Plus className="mr-2 h-4 w-4" /> Yeni Cari Ekle</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Yeni Cari Hesabı</DialogTitle>
-                            </DialogHeader>
-                            <form onSubmit={handleSubmit} className="space-y-4 py-4">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="title">Ünvan / Ad Soyad</Label>
-                                    <Input
-                                        id="title"
-                                        value={newCari.title}
-                                        onChange={(e) => setNewCari({ ...newCari, title: e.target.value })}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="type">Cari Türü</Label>
-                                        <select
-                                            id="type"
-                                            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                                            value={newCari.type}
-                                            onChange={(e) => setNewCari({ ...newCari, type: e.target.value })}
-                                        >
-                                            <option value="CUSTOMER">Müşteri</option>
-                                            <option value="SUPPLIER">Tedarikçi</option>
-                                            <option value="EMPLOYEE">Personel</option>
-                                        </select>
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="currency">Para Birimi</Label>
-                                        <select
-                                            id="currency"
-                                            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                                            value={newCari.defaultCurrencyCode}
-                                            onChange={(e) => setNewCari({ ...newCari, defaultCurrencyCode: e.target.value })}
-                                        >
-                                            <option value="TL">TL</option>
-                                            <option value="USD">USD</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="openingBalance">Açılış Bakiyesi</Label>
-                                    <Input
-                                        id="openingBalance"
-                                        type="number"
-                                        step="0.01"
-                                        value={newCari.openingBalance}
-                                        onChange={(e) => setNewCari({ ...newCari, openingBalance: parseFloat(e.target.value) || 0 })}
-                                    />
-                                    <p className="text-xs text-muted-foreground">Pozitif giriniz. Müşteri & Personel için borç, Tedarikçi için alacak olarak kaydedilir.</p>
-                                </div>
-
-                                <DialogFooter>
-                                    <Button type="submit" disabled={createMutation.isPending}>
-                                        {createMutation.isPending ? 'Kaydediliyor...' : 'Kaydet'}
-                                    </Button>
-                                </DialogFooter>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
+                    <Link href="/finance/caries/new">
+                        <Button><Plus className="mr-2 h-4 w-4" /> Yeni Cari Ekle</Button>
+                    </Link>
                 </div>
             </div>
 

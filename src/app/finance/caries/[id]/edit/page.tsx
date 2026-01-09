@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Save, Trash2 } from 'lucide-react'
+import { CariForm } from '@/components/finance/CariForm'
 
 // Cari detayını çekme
 async function getCari(id: string) {
@@ -48,20 +49,7 @@ export default function EditCariPage() {
     const queryClient = useQueryClient()
     const cariId = params.id as string
 
-    const [formData, setFormData] = useState({
-        title: '',
-        type: 'CUSTOMER',
-        phone: '',
-        email: '',
-        address: '',
-        city: '',
-        taxNumber: '',
-        taxOffice: '',
-        notes: '',
-        defaultCurrencyCode: 'TL',
-        isActive: true,
-        salary: ''
-    })
+    const [formData, setFormData] = useState<any>(null)
 
     const { data: cari, isLoading } = useQuery({
         queryKey: ['cari', cariId],
@@ -72,20 +60,7 @@ export default function EditCariPage() {
     // Form'u cari verileriyle doldur
     useEffect(() => {
         if (cari) {
-            setFormData({
-                title: cari.title || '',
-                type: cari.type || 'CUSTOMER',
-                phone: cari.phone || '',
-                email: cari.email || '',
-                address: cari.address || '',
-                city: cari.city || '',
-                taxNumber: cari.taxNumber || '',
-                taxOffice: cari.taxOffice || '',
-                notes: cari.notes || '',
-                defaultCurrencyCode: cari.defaultCurrency?.code || 'TL',
-                isActive: cari.isActive ?? true,
-                salary: cari.salary ? cari.salary.toString() : ''
-            })
+
         }
     }, [cari])
 
@@ -113,17 +88,8 @@ export default function EditCariPage() {
         }
     })
 
-    const handleChange = (field: string, value: any) => {
-        setFormData(prev => ({ ...prev, [field]: value }))
-    }
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!formData.title.trim()) {
-            alert('Ünvan zorunludur')
-            return
-        }
-        updateMutation.mutate(formData)
+    const handleSubmit = (data: any) => {
+        updateMutation.mutate(data)
     }
 
     const handleDelete = () => {
@@ -155,187 +121,14 @@ export default function EditCariPage() {
             </div>
 
             <form onSubmit={handleSubmit}>
-                <div className="grid gap-6 md:grid-cols-2">
-                    {/* Temel Bilgiler */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Temel Bilgiler</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="title">Ünvan / Ad Soyad *</Label>
-                                <Input
-                                    id="title"
-                                    value={formData.title}
-                                    onChange={(e) => handleChange('title', e.target.value)}
-                                    required
-                                />
-                            </div>
+                <CariForm
+                    initialData={cari} // Use cari directly from query as initial data
+                    onSubmit={handleSubmit}
+                    isSubmitting={updateMutation.isPending}
+                    mode="edit"
+                />
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="type">Cari Türü</Label>
-                                    <select
-                                        id="type"
-                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                        value={formData.type}
-                                        onChange={(e) => handleChange('type', e.target.value)}
-                                    >
-                                        <option value="CUSTOMER">Müşteri</option>
-                                        <option value="SUPPLIER">Tedarikçi</option>
-                                        <option value="EMPLOYEE">Personel</option>
-                                    </select>
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="currency">Para Birimi</Label>
-                                    <select
-                                        id="currency"
-                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                        value={formData.defaultCurrencyCode}
-                                        onChange={(e) => handleChange('defaultCurrencyCode', e.target.value)}
-                                    >
-                                        <option value="TL">TL</option>
-                                        <option value="USD">USD</option>
-                                    </select>
-                                </div>
-                            </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="isActive">Durum</Label>
-                                <select
-                                    id="isActive"
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                    value={formData.isActive ? 'true' : 'false'}
-                                    onChange={(e) => handleChange('isActive', e.target.value === 'true')}
-                                >
-                                    <option value="true">Aktif</option>
-                                    <option value="false">Pasif</option>
-                                </select>
-                            </div>
-
-                            {/* Personel Maaşı - Sadece EMPLOYEE tipi için */}
-                            {formData.type === 'EMPLOYEE' && (
-                                <div className="grid gap-2 p-4 bg-violet-50 rounded-lg border border-violet-200">
-                                    <Label htmlFor="salary" className="text-violet-700 font-semibold">Aylık Maaş (₺)</Label>
-                                    <Input
-                                        id="salary"
-                                        type="number"
-                                        step="0.01"
-                                        value={formData.salary}
-                                        onChange={(e) => handleChange('salary', e.target.value)}
-                                        placeholder="50000.00"
-                                        className="border-violet-300"
-                                    />
-                                    <p className="text-xs text-violet-600">Ay sonu maaş tahakkukunda kullanılacaktır.</p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    {/* İletişim Bilgileri */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>İletişim Bilgileri</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="phone">Telefon</Label>
-                                    <Input
-                                        id="phone"
-                                        type="tel"
-                                        value={formData.phone}
-                                        onChange={(e) => handleChange('phone', e.target.value)}
-                                        placeholder="0532 123 45 67"
-                                    />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="email">E-posta</Label>
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={(e) => handleChange('email', e.target.value)}
-                                        placeholder="ornek@email.com"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="address">Adres</Label>
-                                <Input
-                                    id="address"
-                                    value={formData.address}
-                                    onChange={(e) => handleChange('address', e.target.value)}
-                                    placeholder="Sokak, Mahalle, No"
-                                />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="city">Şehir</Label>
-                                <Input
-                                    id="city"
-                                    value={formData.city}
-                                    onChange={(e) => handleChange('city', e.target.value)}
-                                    placeholder="İstanbul"
-                                />
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Vergi Bilgileri */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Vergi Bilgileri</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="taxNumber">Vergi No / TC Kimlik</Label>
-                                    <Input
-                                        id="taxNumber"
-                                        value={formData.taxNumber}
-                                        onChange={(e) => handleChange('taxNumber', e.target.value)}
-                                    />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="taxOffice">Vergi Dairesi</Label>
-                                    <Input
-                                        id="taxOffice"
-                                        value={formData.taxOffice}
-                                        onChange={(e) => handleChange('taxOffice', e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Notlar */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Notlar</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <textarea
-                                className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                value={formData.notes}
-                                onChange={(e) => handleChange('notes', e.target.value)}
-                                placeholder="Cari hakkında notlar..."
-                            />
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <div className="flex justify-end gap-4 mt-6">
-                    <Button type="button" variant="outline" onClick={() => router.back()}>
-                        İptal
-                    </Button>
-                    <Button type="submit" size="lg" disabled={updateMutation.isPending}>
-                        <Save className="mr-2 h-4 w-4" />
-                        {updateMutation.isPending ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
-                    </Button>
-                </div>
-            </form>
         </div>
     )
 }
