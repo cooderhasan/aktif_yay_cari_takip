@@ -179,49 +179,72 @@ export default function SettingsPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="logoUrl">Logo URL</Label>
-                            <div className="flex gap-2">
-                                <Input
-                                    id="logoUrl"
-                                    value={formData.logoUrl}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, logoUrl: e.target.value }))}
-                                    placeholder="/logo.png veya https://..."
-                                />
-                                <div className="relative">
-                                    <input
-                                        type="file"
-                                        id="logoUpload"
-                                        className="hidden"
-                                        accept="image/*"
-                                        onChange={(e) => handleFileUpload(e, 'logoUrl')}
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => document.getElementById('logoUpload')?.click()}
-                                        disabled={uploadingLogo}
-                                    >
-                                        {uploadingLogo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                                    </Button>
+                        <div className="grid gap-4">
+                            <div className="flex items-center gap-4">
+                                {formData.logoUrl ? (
+                                    <div className="relative group">
+                                        <div className="p-2 border rounded-lg bg-white">
+                                            <img
+                                                src={formData.logoUrl}
+                                                alt="Logo"
+                                                className="h-16 max-w-[200px] object-contain"
+                                                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                                            />
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="icon"
+                                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            onClick={() => setFormData(prev => ({ ...prev, logoUrl: '' }))}
+                                        >
+                                            <LogOut className="h-3 w-3" />
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="h-16 w-16 border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground bg-muted/50">
+                                        <FileImage className="h-8 w-8 opacity-50" />
+                                    </div>
+                                )}
+
+                                <div className="flex-1">
+                                    <Label htmlFor="logoUpload" className="cursor-pointer">
+                                        <div className="flex items-center gap-2 w-full p-2 border rounded-md hover:bg-muted/50 transition-colors">
+                                            <Upload className="h-4 w-4 text-muted-foreground" />
+                                            <span className="text-sm text-muted-foreground">
+                                                {uploadingLogo ? 'Yükleniyor...' : 'Bilgisayardan logo seç...'}
+                                            </span>
+                                        </div>
+                                        <input
+                                            type="file"
+                                            id="logoUpload"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={(e) => handleFileUpload(e, 'logoUrl')}
+                                            disabled={uploadingLogo}
+                                        />
+                                    </Label>
+                                    <p className="text-[10px] text-muted-foreground mt-1">
+                                        Önerilen boyut: 150x40 piksel. PNG veya JPG.
+                                    </p>
                                 </div>
                             </div>
-                            <p className="text-xs text-muted-foreground">
-                                Logo dosyasının yolu (önerilen boyut: 150x40 piksel)
-                            </p>
-                        </div>
 
-                        {formData.logoUrl && (
-                            <div className="flex items-center gap-2 p-4 bg-slate-900 rounded-lg">
-                                <span className="text-sm text-slate-400">Önizleme:</span>
-                                <img
-                                    src={formData.logoUrl}
-                                    alt="Logo"
-                                    className="h-10 max-w-[150px] object-contain"
-                                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                            {/* Eski URL girişi - Gelişmiş seçenek olarak gizlenebilir veya küçük gösterilebilir */}
+                            <div className="text-xs">
+                                <span className="text-muted-foreground cursor-pointer hover:underline" onClick={() => {
+                                    const el = document.getElementById('logoUrlInput');
+                                    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+                                }}>Manuel URL Gir (Gelişmiş)</span>
+                                <Input
+                                    id="logoUrlInput"
+                                    value={formData.logoUrl}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, logoUrl: e.target.value }))}
+                                    placeholder="https://..."
+                                    className="mt-1 h-8 text-xs hidden"
                                 />
                             </div>
-                        )}
+                        </div>
                     </CardContent>
                 </Card>
 
@@ -241,49 +264,71 @@ export default function SettingsPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="faviconUrl">Favicon URL</Label>
-                            <div className="flex gap-2">
+                        <div className="grid gap-4">
+                            <div className="flex items-center gap-4">
+                                {formData.faviconUrl ? (
+                                    <div className="relative group">
+                                        <div className="p-2 border rounded-lg bg-white">
+                                            <img
+                                                src={formData.faviconUrl}
+                                                alt="Favicon"
+                                                className="w-8 h-8 object-contain"
+                                                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                                            />
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="icon"
+                                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            onClick={() => setFormData(prev => ({ ...prev, faviconUrl: '' }))}
+                                        >
+                                            <LogOut className="h-3 w-3" />
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="h-12 w-12 border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground bg-muted/50">
+                                        <FileImage className="h-6 w-6 opacity-50" />
+                                    </div>
+                                )}
+
+                                <div className="flex-1">
+                                    <Label htmlFor="faviconUpload" className="cursor-pointer">
+                                        <div className="flex items-center gap-2 w-full p-2 border rounded-md hover:bg-muted/50 transition-colors">
+                                            <Upload className="h-4 w-4 text-muted-foreground" />
+                                            <span className="text-sm text-muted-foreground">
+                                                {uploadingFavicon ? 'Yükleniyor...' : 'Bilgisayardan ikon seç...'}
+                                            </span>
+                                        </div>
+                                        <input
+                                            type="file"
+                                            id="faviconUpload"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={(e) => handleFileUpload(e, 'faviconUrl')}
+                                            disabled={uploadingFavicon}
+                                        />
+                                    </Label>
+                                    <p className="text-[10px] text-muted-foreground mt-1">
+                                        Favicon dosyası (kare format, örn: 32x32)
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="text-xs">
+                                <span className="text-muted-foreground cursor-pointer hover:underline" onClick={() => {
+                                    const el = document.getElementById('faviconUrlInput');
+                                    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+                                }}>Manuel URL Gir (Gelişmiş)</span>
                                 <Input
-                                    id="faviconUrl"
+                                    id="faviconUrlInput"
                                     value={formData.faviconUrl}
                                     onChange={(e) => setFormData(prev => ({ ...prev, faviconUrl: e.target.value }))}
                                     placeholder="/favicon.ico"
+                                    className="mt-1 h-8 text-xs hidden"
                                 />
-                                <div className="relative">
-                                    <input
-                                        type="file"
-                                        id="faviconUpload"
-                                        className="hidden"
-                                        accept="image/*"
-                                        onChange={(e) => handleFileUpload(e, 'faviconUrl')}
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => document.getElementById('faviconUpload')?.click()}
-                                        disabled={uploadingFavicon}
-                                    >
-                                        {uploadingFavicon ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                                    </Button>
-                                </div>
                             </div>
-                            <p className="text-xs text-muted-foreground">
-                                Favicon dosyasinin yolu (ornek: /favicon.ico veya tam URL)
-                            </p>
                         </div>
-
-                        {formData.faviconUrl && (
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">Onizleme:</span>
-                                <img
-                                    src={formData.faviconUrl}
-                                    alt="Favicon"
-                                    className="w-8 h-8 border rounded"
-                                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                                />
-                            </div>
-                        )}
                     </CardContent>
                 </Card>
 
