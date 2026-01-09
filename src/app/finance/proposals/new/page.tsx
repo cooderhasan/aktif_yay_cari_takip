@@ -20,12 +20,21 @@ export default function NewProposalPage() {
                 body: JSON.stringify(data)
             })
 
-            if (!res.ok) throw new Error('Teklif oluşturulamadı')
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}))
+                throw new Error(errorData.error || 'Teklif oluşturulamadı')
+            }
 
             const proposal = await res.json()
             router.push(`/finance/proposals/${proposal.id}`) // Detay/Önizleme sayfasına yönlendir
-        } catch (error) {
-            alert('Hata: Teklif kaydedilemedi.')
+        } catch (error: any) {
+            let errorMsg = 'Hata: Teklif kaydedilemedi.'
+            if (error instanceof Error) {
+                // Try to parse if it's a fetch response error that we manually threw or constructed ??
+                // Actually the cleaner way is to handle the !res.ok block above better.
+                errorMsg = error.message
+            }
+            alert(errorMsg)
         } finally {
             setIsSubmitting(false)
         }
