@@ -120,13 +120,13 @@ export default function EditCariPage() {
                 </Button>
             </div>
 
-            <form onSubmit={handleSubmit}>
-                <CariForm
-                    initialData={cari} // Use cari directly from query as initial data
-                    onSubmit={handleSubmit}
-                    isSubmitting={updateMutation.isPending}
-                    mode="edit"
-                />
+
+            <CariForm
+                initialData={cari} // Use cari directly from query as initial data
+                onSubmit={handleSubmit}
+                isSubmitting={updateMutation.isPending}
+                mode="edit"
+            />
 
 
         </div>
