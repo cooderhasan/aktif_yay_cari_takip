@@ -37,11 +37,7 @@ export default function SettingsPage() {
         faviconUrl: '',
         logoUrl: '',
 
-        companyTitle: '',
-        companyVkn: '',
-        companyAddress: '',
-        companyCity: '',
-        companyDistrict: '',
+
 
     })
 
@@ -58,11 +54,7 @@ export default function SettingsPage() {
                 faviconUrl: settings.faviconUrl || '',
                 logoUrl: settings.logoUrl || '',
 
-                companyTitle: settings.companyTitle || '',
-                companyVkn: settings.companyVkn || '',
-                companyAddress: settings.companyAddress || '',
-                companyCity: settings.companyCity || '',
-                companyDistrict: settings.companyDistrict || '',
+
 
             })
         }
@@ -185,69 +177,7 @@ export default function SettingsPage() {
 
 
 
-                {/* Firma Resmi Bilgileri (E-Fatura Icin) */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <FileImage className="h-5 w-5" />
-                            Resmi Firma Bilgileri
-                        </CardTitle>
-                        <CardDescription>
-                            E-Fatura gönderiminde "Gönderici" (Siz) olarak görünecek bilgiler. Eksiksiz doldurunuz.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="companyTitle">Firma Resmi Unvanı</Label>
-                            <Input
-                                id="companyTitle"
-                                value={formData.companyTitle}
-                                onChange={(e) => setFormData(prev => ({ ...prev, companyTitle: e.target.value }))}
-                                placeholder="Örn: MOTOVITRIN OTOMOTIV A.S."
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="companyVkn">VKN / TCKN</Label>
-                            <Input
-                                id="companyVkn"
-                                value={formData.companyVkn}
-                                onChange={(e) => setFormData(prev => ({ ...prev, companyVkn: e.target.value }))}
-                                placeholder="Vergi Kimlik Numarası"
-                                maxLength={11}
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="companyCity">İl</Label>
-                                <Input
-                                    id="companyCity"
-                                    value={formData.companyCity}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, companyCity: e.target.value }))}
-                                    placeholder="Örn: ISTANBUL"
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="companyDistrict">İlçe</Label>
-                                <Input
-                                    id="companyDistrict"
-                                    value={formData.companyDistrict}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, companyDistrict: e.target.value }))}
-                                    placeholder="Örn: ATASEHIR"
-                                />
-                            </div>
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="companyAddress">Açık Adres (Sokak/Mahalle/No)</Label>
-                            <Input
-                                id="companyAddress"
-                                value={formData.companyAddress}
-                                onChange={(e) => setFormData(prev => ({ ...prev, companyAddress: e.target.value }))}
-                                placeholder="Örn: Atatürk Mah. Çiçek Sok. No:5"
-                            />
-                        </div>
 
-                    </CardContent>
-                </Card>
 
                 {/* Favicon */}
                 <Card>
