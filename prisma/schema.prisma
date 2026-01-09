@@ -47,6 +47,8 @@ model Currency {
   salesSlips        SalesSlip[]
   payments          Payment[]
   cashTransactions  CashTransaction[]
+  proposals         Proposal[]
+
 
   @@map("currencies")
 }
@@ -99,6 +101,8 @@ model Cari {
   salesSlips                SalesSlip[]
   payments                  Payment[]
   transactions              CashTransaction[]
+  proposals                 Proposal[]
+
 
   @@map("caries")
 }
@@ -223,3 +227,60 @@ model Settings {
   @@map("settings")
 }
 
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  APPROVED
+  REJECTED
+}
+
+model Proposal {
+  id            Int            @id @default(autoincrement())
+  proposalNumber String        @unique @map("proposal_number")
+  customerId    Int            @map("customer_id")
+  
+  proposalDate  DateTime       @map("proposal_date")
+  validUntil    DateTime?      @map("valid_until")
+  
+  currencyId    Int            @map("currency_id")
+  exchangeRate  Decimal        @db.Decimal(18, 2) @map("exchange_rate")
+  totalAmount   Decimal        @db.Decimal(18, 2) @map("total_amount")
+  discountRate  Decimal        @default(0) @db.Decimal(5, 2) @map("discount_rate")
+  
+  deliveryTime  String?        @map("delivery_time")
+  paymentTerms  String?        @map("payment_terms")
+  notes         String?        @map("notes")
+  
+  status        ProposalStatus @default(DRAFT)
+  
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  customer      Cari           @relation(fields: [customerId], references: [id])
+  currency      Currency       @relation(fields: [currencyId], references: [id])
+  items         ProposalItem[]
+
+  @@map("proposals")
+}
+
+model ProposalItem {
+  id          Int      @id @default(autoincrement())
+  proposalId  Int      @map("proposal_id")
+  
+  productName String   @map("product_name")
+  stockCode   String?  @map("stock_code")
+  brand       String?  @map("brand")
+  
+  quantity    Decimal  @db.Decimal(18, 2)
+  unit        String   @default("Adet")
+  unitPrice   Decimal  @db.Decimal(18, 2) @map("unit_price")
+  vatRate     Int      @default(20) @map("vat_rate")
+  
+  lineTotal   Decimal  @db.Decimal(18, 2) @map("line_total")
+  description String?  @map("description")
+
+  proposal    Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@map("proposal_items")
+}
