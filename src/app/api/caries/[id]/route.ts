@@ -54,7 +54,6 @@ export async function PUT(
         if (body.phone !== undefined) updateData.phone = body.phone
         if (body.email !== undefined) updateData.email = body.email
         if (body.address !== undefined) updateData.address = body.address
-        if (body.address !== undefined) updateData.address = body.address
         if (body.city !== undefined) updateData.city = body.city
         if (body.district !== undefined) updateData.district = body.district
         if (body.taxNumber !== undefined) updateData.taxNumber = body.taxNumber
@@ -80,9 +79,12 @@ export async function PUT(
         })
 
         return NextResponse.json(updated)
-    } catch (error) {
+    } catch (error: any) {
         console.error('Cari güncelleme hatası:', error)
-        return NextResponse.json({ error: 'Cari güncellenirken hata oluştu.' }, { status: 500 })
+        return NextResponse.json({
+            error: 'Cari güncellenirken hata oluştu.',
+            details: error.message
+        }, { status: 500 })
     }
 }
 

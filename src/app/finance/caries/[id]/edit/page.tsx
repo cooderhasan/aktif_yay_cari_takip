@@ -26,7 +26,7 @@ async function updateCari(id: string, data: any) {
     })
     if (!res.ok) {
         const errorData = await res.json()
-        throw new Error(errorData.error || 'Cari güncellenemedi')
+        throw new Error(errorData.details || errorData.error || 'Cari güncellenemedi')
     }
     return res.json()
 }
