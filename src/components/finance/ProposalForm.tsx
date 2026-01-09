@@ -237,13 +237,13 @@ export function ProposalForm({ initialData, onSubmit, isSubmitting }: ProposalFo
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[120px]">Stok Kodu</TableHead>
-                                <TableHead className="min-w-[200px]">Ürün/Hizmet Adı</TableHead>
+                                <TableHead className="w-[150px]">Stok Kodu</TableHead>
+                                <TableHead className="min-w-[300px]">Ürün/Hizmet Adı</TableHead>
                                 <TableHead className="w-[100px]">Miktar</TableHead>
-                                <TableHead className="w-[100px]">Birim</TableHead>
-                                <TableHead className="w-[120px]">Birim Fiyat</TableHead>
-                                <TableHead className="w-[80px]">KDV %</TableHead>
-                                <TableHead className="w-[120px] text-right">Tutar</TableHead>
+                                <TableHead className="w-[120px]">Birim</TableHead>
+                                <TableHead className="w-[140px]">Birim Fiyat</TableHead>
+                                <TableHead className="w-[100px]">KDV %</TableHead>
+                                <TableHead className="w-[150px] text-right">Tutar</TableHead>
                                 <TableHead className="w-[50px]"></TableHead>
                             </TableRow>
                         </TableHeader>
@@ -255,7 +255,7 @@ export function ProposalForm({ initialData, onSubmit, isSubmitting }: ProposalFo
                                             value={item.stockCode}
                                             onChange={(e) => handleItemChange(index, 'stockCode', e.target.value)}
                                             placeholder="KOD-01"
-                                            className="h-8"
+                                            className="h-9 w-full"
                                         />
                                     </TableCell>
                                     <TableCell>
@@ -263,13 +263,13 @@ export function ProposalForm({ initialData, onSubmit, isSubmitting }: ProposalFo
                                             value={item.productName}
                                             onChange={(e) => handleItemChange(index, 'productName', e.target.value)}
                                             placeholder="Ürün adı..."
-                                            className="h-8"
+                                            className="h-9 w-full font-medium"
                                         />
                                         <Input
                                             value={item.description}
                                             onChange={(e) => handleItemChange(index, 'description', e.target.value)}
                                             placeholder="Açıklama (opsiyonel)"
-                                            className="h-6 text-xs mt-1 text-muted-foreground"
+                                            className="h-7 text-xs mt-1.5 text-muted-foreground w-full"
                                         />
                                     </TableCell>
                                     <TableCell>
@@ -277,7 +277,8 @@ export function ProposalForm({ initialData, onSubmit, isSubmitting }: ProposalFo
                                             type="number"
                                             value={item.quantity}
                                             onChange={(e) => handleItemChange(index, 'quantity', Number(e.target.value))}
-                                            className="h-8"
+                                            className="h-9 w-full text-center"
+                                            min="0"
                                         />
                                     </TableCell>
                                     <TableCell>
@@ -285,7 +286,7 @@ export function ProposalForm({ initialData, onSubmit, isSubmitting }: ProposalFo
                                             value={item.unit}
                                             onValueChange={(val) => handleItemChange(index, 'unit', val)}
                                         >
-                                            <SelectTrigger className="h-8">
+                                            <SelectTrigger className="h-9 w-full">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -299,31 +300,38 @@ export function ProposalForm({ initialData, onSubmit, isSubmitting }: ProposalFo
                                         </Select>
                                     </TableCell>
                                     <TableCell>
-                                        <Input
-                                            type="number"
-                                            step="0.01"
-                                            value={item.unitPrice}
-                                            onChange={(e) => handleItemChange(index, 'unitPrice', Number(e.target.value))}
-                                            className="h-8"
-                                        />
+                                        <div className="relative">
+                                            <Input
+                                                type="number"
+                                                step="0.01"
+                                                value={item.unitPrice}
+                                                onChange={(e) => handleItemChange(index, 'unitPrice', Number(e.target.value))}
+                                                className="h-9 w-full text-right pr-2"
+                                                min="0"
+                                            />
+                                        </div>
                                     </TableCell>
                                     <TableCell>
                                         <Input
                                             type="number"
                                             value={item.vatRate}
                                             onChange={(e) => handleItemChange(index, 'vatRate', Number(e.target.value))}
-                                            className="h-8"
+                                            className="h-9 w-full text-center"
+                                            min="0"
+                                            max="100"
                                         />
                                     </TableCell>
-                                    <TableCell className="text-right font-medium">
-                                        {item.lineTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+                                    <TableCell className="text-right font-semibold text-sm">
+                                        <div className="py-2 px-1 bg-slate-50 rounded border border-slate-100">
+                                            {item.lineTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </div>
                                     </TableCell>
                                     <TableCell>
                                         <Button
                                             type="button"
                                             variant="ghost"
-                                            size="sm"
-                                            className="h-8 w-8 text-red-500 hover:text-red-700"
+                                            size="icon"
+                                            className="h-9 w-9 text-slate-400 hover:text-red-600 hover:bg-red-50"
                                             onClick={() => removeItem(index)}
                                         >
                                             <Trash2 className="h-4 w-4" />
