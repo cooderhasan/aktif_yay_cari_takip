@@ -259,18 +259,20 @@ export function ProposalForm({ initialData, onSubmit, isSubmitting }: ProposalFo
                                         />
                                     </TableCell>
                                     <TableCell>
-                                        <Input
-                                            value={item.productName}
-                                            onChange={(e) => handleItemChange(index, 'productName', e.target.value)}
-                                            placeholder="Ürün adı..."
-                                            className="h-9 w-full font-medium"
-                                        />
-                                        <Input
-                                            value={item.description}
-                                            onChange={(e) => handleItemChange(index, 'description', e.target.value)}
-                                            placeholder="Açıklama (opsiyonel)"
-                                            className="h-7 text-xs mt-1.5 text-muted-foreground w-full"
-                                        />
+                                        <div className="flex flex-col gap-2">
+                                            <Input
+                                                value={item.productName}
+                                                onChange={(e) => handleItemChange(index, 'productName', e.target.value)}
+                                                placeholder="Ürün adı..."
+                                                className="h-9 w-full font-medium"
+                                            />
+                                            <Input
+                                                value={item.description}
+                                                onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+                                                placeholder="Açıklama (opsiyonel)"
+                                                className="h-8 text-xs text-muted-foreground w-full"
+                                            />
+                                        </div>
                                     </TableCell>
                                     <TableCell>
                                         <Input
