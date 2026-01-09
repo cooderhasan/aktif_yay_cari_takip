@@ -146,6 +146,17 @@ export function ProposalForm({ initialData, onSubmit, isSubmitting }: ProposalFo
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
+
+        if (!formData.customerId) {
+            alert('Lütfen bir müşteri seçiniz.')
+            return
+        }
+
+        if (items.length === 0) {
+            alert('Lütfen en az bir ürün/hizmet ekleyiniz.')
+            return
+        }
+
         onSubmit({
             ...formData,
             items,
