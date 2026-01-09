@@ -55,11 +55,7 @@ export default function InvoicesIndexPage() {
                             <Plus className="mr-2 h-4 w-4" /> Yeni Satış Fişi
                         </Button>
                     </Link>
-                    <Link href="/finance/invoices/all">
-                        <Button variant="secondary" className="w-full sm:w-auto">
-                            <Search className="mr-2 h-4 w-4" /> Detaylı Arama
-                        </Button>
-                    </Link>
+
                 </div>
             </div>
 
