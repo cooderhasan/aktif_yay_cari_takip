@@ -36,6 +36,14 @@ export default function SettingsPage() {
         siteDescription: '',
         faviconUrl: '',
         logoUrl: '',
+        companyTitle: '',
+        companyAddress: '',
+        companyCity: '',
+        companyDistrict: '',
+        companyPhone: '',
+        companyEmail: '',
+        companyTaxNumber: '',
+        companyTaxOffice: ''
 
 
 
@@ -53,6 +61,14 @@ export default function SettingsPage() {
                 siteDescription: settings.siteDescription || '',
                 faviconUrl: settings.faviconUrl || '',
                 logoUrl: settings.logoUrl || '',
+                companyTitle: settings.companyTitle || '',
+                companyAddress: settings.companyAddress || '',
+                companyCity: settings.companyCity || '',
+                companyDistrict: settings.companyDistrict || '',
+                companyPhone: settings.companyPhone || '',
+                companyEmail: settings.companyEmail || '',
+                companyTaxNumber: settings.companyTaxNumber || '',
+                companyTaxOffice: settings.companyTaxOffice || ''
 
 
 
@@ -326,6 +342,101 @@ export default function SettingsPage() {
                                     onChange={(e) => setFormData(prev => ({ ...prev, faviconUrl: e.target.value }))}
                                     placeholder="/favicon.ico"
                                     className="mt-1 h-8 text-xs hidden"
+                                />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Resmi Firma Bilgileri */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Settings className="h-5 w-5" />
+                            Resmi Firma Bilgileri
+                        </CardTitle>
+                        <CardDescription>
+                            Teklif ve resmi evraklarda görünecek firma bilgileriniz
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="companyTitle">Firma Ünvanı</Label>
+                            <Input
+                                id="companyTitle"
+                                value={formData.companyTitle}
+                                onChange={(e) => setFormData(prev => ({ ...prev, companyTitle: e.target.value }))}
+                                placeholder="Örn: Aktif Yay Ltd. Şti."
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor="companyPhone">Telefon</Label>
+                                <Input
+                                    id="companyPhone"
+                                    value={formData.companyPhone}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, companyPhone: e.target.value }))}
+                                    placeholder="0212 ..."
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="companyEmail">E-posta</Label>
+                                <Input
+                                    id="companyEmail"
+                                    value={formData.companyEmail}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, companyEmail: e.target.value }))}
+                                    placeholder="info@..."
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="companyAddress">Adres</Label>
+                            <Input
+                                id="companyAddress"
+                                value={formData.companyAddress}
+                                onChange={(e) => setFormData(prev => ({ ...prev, companyAddress: e.target.value }))}
+                                placeholder="Mahalle, Cadde, No..."
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor="companyCity">İl</Label>
+                                <Input
+                                    id="companyCity"
+                                    value={formData.companyCity}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, companyCity: e.target.value }))}
+                                    placeholder="İstanbul"
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="companyDistrict">İlçe</Label>
+                                <Input
+                                    id="companyDistrict"
+                                    value={formData.companyDistrict}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, companyDistrict: e.target.value }))}
+                                    placeholder="Şişli"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor="companyTaxOffice">Vergi Dairesi</Label>
+                                <Input
+                                    id="companyTaxOffice"
+                                    value={formData.companyTaxOffice}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, companyTaxOffice: e.target.value }))}
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="companyTaxNumber">Vergi Numarası</Label>
+                                <Input
+                                    id="companyTaxNumber"
+                                    value={formData.companyTaxNumber}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, companyTaxNumber: e.target.value }))}
                                 />
                             </div>
                         </div>
