@@ -50,19 +50,53 @@ export async function POST(request: Request) {
     try {
         const body = await request.json()
 
+        // Validation
+        if (!body.customerId) {
+            return NextResponse.json({ error: 'Müşteri seçimi zorunludur.' }, { status: 400 })
+        }
+
+        const customerIdInt = parseInt(body.customerId)
+        if (isNaN(customerIdInt)) {
+            return NextResponse.json({ error: 'Geçersiz müşteri ID.' }, { status: 400 })
+        }
+
         // Generate Proposal Number if not provided
         let proposalNumber = body.proposalNumber
         if (!proposalNumber) {
-            // Simple auto-increment logic or random unique
-            const count = await db.proposal.count()
             const year = new Date().getFullYear()
-            proposalNumber = `TKL-${year}-${(count + 1).toString().padStart(3, '0')}`
+            const yearPrefix = `TKL-${year}-`
+
+            // Find the last proposal of this year
+            const lastProposal = await db.proposal.findFirst({
+                where: {
+                    proposalNumber: {
+                        startsWith: yearPrefix
+                    }
+                },
+                orderBy: {
+                    proposalNumber: 'desc'
+                }
+            })
+
+            let nextNumber = 1
+            if (lastProposal) {
+                const parts = lastProposal.proposalNumber.split('-')
+                if (parts.length === 3) {
+                    const lastSeq = parseInt(parts[2])
+                    if (!isNaN(lastSeq)) {
+                        nextNumber = lastSeq + 1
+                    }
+                }
+            }
+
+            proposalNumber = `${yearPrefix}${nextNumber.toString().padStart(3, '0')}`
         }
 
+        // Create Proposal
         const proposal = await db.proposal.create({
             data: {
                 proposalNumber,
-                customerId: parseInt(body.customerId),
+                customerId: customerIdInt,
                 proposalDate: new Date(body.proposalDate),
                 validUntil: body.validUntil ? new Date(body.validUntil) : null,
                 currencyId: parseInt(body.currencyId),
@@ -90,8 +124,12 @@ export async function POST(request: Request) {
         })
 
         return NextResponse.json(proposal)
-    } catch (error) {
+    } catch (error: any) {
         console.error('Proposal create error:', error)
+        // Return duplicate error specifically
+        if (error.code === 'P2002') {
+            return NextResponse.json({ error: 'Bu teklif numarası zaten mevcut, lütfen tekrar deneyin.' }, { status: 409 })
+        }
         return NextResponse.json({ error: 'Teklif oluşturulurken hata oluştu' }, { status: 500 })
     }
 }
