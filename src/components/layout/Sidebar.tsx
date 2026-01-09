@@ -23,6 +23,7 @@ const menuItems = [
     { name: 'Cariler', href: '/finance/caries', icon: Users, color: 'from-violet-500 to-purple-500' },
     { name: 'Personel', href: '/finance/personnel', icon: UserCheck, color: 'from-emerald-500 to-teal-500' },
     { name: 'Fatura & Satış', href: '/finance/invoices', icon: FileText, color: 'from-orange-500 to-amber-500' },
+    { name: 'Teklifler', href: '/finance/proposals', icon: Send, color: 'from-purple-500 to-indigo-500' },
 
     { name: 'Kasa & Ödeme', href: '/finance/payments', icon: CreditCard, color: 'from-pink-500 to-rose-500' },
     { name: 'Raporlar', href: '/finance/reports', icon: BarChart3, color: 'from-indigo-500 to-blue-500' },
