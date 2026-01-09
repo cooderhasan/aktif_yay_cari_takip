@@ -5,10 +5,10 @@ import { existsSync } from 'fs'
 
 export async function GET(
     request: Request,
-    { params }: { params: { filename: string } }
+    { params }: { params: Promise<{ filename: string }> }
 ) {
     try {
-        const filename = params.filename
+        const { filename } = await params
 
         // Define the path where files are stored (same as in upload route)
         // Check both locations to be safe given the environment
