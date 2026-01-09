@@ -36,13 +36,13 @@ export default function SettingsPage() {
         siteDescription: '',
         faviconUrl: '',
         logoUrl: '',
-        logoUrl: '',
+
         companyTitle: '',
         companyVkn: '',
         companyAddress: '',
         companyCity: '',
         companyDistrict: '',
-        companyDistrict: '',
+
     })
 
     const { data: settings, isLoading } = useQuery({
@@ -57,13 +57,13 @@ export default function SettingsPage() {
                 siteDescription: settings.siteDescription || '',
                 faviconUrl: settings.faviconUrl || '',
                 logoUrl: settings.logoUrl || '',
-                logoUrl: settings.logoUrl || '',
+
                 companyTitle: settings.companyTitle || '',
                 companyVkn: settings.companyVkn || '',
                 companyAddress: settings.companyAddress || '',
                 companyCity: settings.companyCity || '',
                 companyDistrict: settings.companyDistrict || '',
-                companyDistrict: settings.companyDistrict || '',
+
             })
         }
     }, [settings])
