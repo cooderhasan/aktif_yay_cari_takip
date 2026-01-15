@@ -7,7 +7,7 @@ import Script from 'next/script'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Printer, Pencil, ArrowLeft, Trash2, Mail, Download } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 async function getProposal(id: string) {
     const res = await fetch(`/api/proposals/${id}`)
