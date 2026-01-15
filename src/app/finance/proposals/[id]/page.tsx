@@ -24,7 +24,6 @@ export default function ProposalDetailPage() {
     const params = useParams()
     const router = useRouter()
     const id = params.id as string
-    const [isDownloading, setIsDownloading] = useState(false)
 
     const { data: proposal, isLoading: isLoadingProposal } = useQuery({
         queryKey: ['proposal', id],
@@ -40,76 +39,9 @@ export default function ProposalDetailPage() {
         window.print()
     }
 
-    const handleDownloadPdf = async () => {
-        setIsDownloading(true)
-
-        try {
-            // @ts-ignore
-            if (!window.html2pdf) {
-                // Load library on-demand
-                await new Promise((resolve, reject) => {
-                    const script = document.createElement('script')
-                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
-                    script.onload = resolve
-                    script.onerror = reject
-                    document.head.appendChild(script)
-                })
-
-                // Wait for library to initialize
-                await new Promise(resolve => setTimeout(resolve, 100))
-            }
-
-            const element = document.getElementById('proposal-content')
-            if (!element) {
-                throw new Error('Content element not found')
-            }
-
-            console.log('Starting PDF generation for:', proposal.proposalNumber)
-            const opt = {
-                margin: 0,
-                filename: `Teklif-${proposal.proposalNumber}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
-                    backgroundColor: '#ffffff',
-                    ignoreElements: (element: Element) => {
-                        const classNames = element.className?.toString() || ''
-                        return classNames.includes('recharts') || classNames.includes('chart')
-                    },
-                    onclone: (clonedDoc: Document) => {
-                        try {
-                            // Safe fix: check computed styles for lab() colors
-                            const allElements = clonedDoc.querySelectorAll('*')
-                            allElements.forEach((el: any) => {
-                                const style = window.getComputedStyle(el)
-                                if (style.color?.includes('lab(')) el.style.color = '#000000'
-                                if (style.backgroundColor?.includes('lab(')) el.style.backgroundColor = '#ffffff'
-                                if (style.borderColor?.includes('lab(')) el.style.borderColor = '#000000'
-                            })
-                        } catch (e) {
-                            console.error('PDF color cleanup error:', e)
-                        }
-                    }
-                },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            }
-
-            // @ts-ignore - Use outputPdf to ensure download
-            const worker = window.html2pdf()
-            await worker.set(opt).from(element).outputPdf('save')
-
-            console.log('PDF save called')
-
-            // Brief delay before re-enabling
-            await new Promise(resolve => setTimeout(resolve, 500))
-        } catch (error) {
-            console.error('PDF error:', error)
-            alert('PDF oluşturulurken hata oluştu. Lütfen tekrar deneyin.')
-        } finally {
-            setIsDownloading(false)
-        }
+    const handleDownloadPdf = () => {
+        // Use browser's native print dialog - user can select "Save as PDF"
+        window.print()
     }
 
     const handleDelete = async () => {
@@ -150,9 +82,9 @@ export default function ProposalDetailPage() {
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleDownloadPdf} disabled={isDownloading}>
+                    <Button variant="outline" onClick={handleDownloadPdf}>
                         <Download className="mr-2 h-4 w-4" />
-                        {isDownloading ? 'İndiriliyor...' : 'PDF İndir'}
+                        PDF İndir / Yazdır
                     </Button>
                     <Button variant="outline" onClick={handlePrint}>
                         <Printer className="mr-2 h-4 w-4" /> Yazdır
