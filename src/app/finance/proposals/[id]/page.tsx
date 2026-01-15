@@ -75,31 +75,36 @@ export default function ProposalDetailPage() {
                     logging: false,
                     backgroundColor: '#ffffff',
                     ignoreElements: (element: Element) => {
-                        // Skip elements that might have lab() colors in classes
+                        // Skip charts and any problematic elements
                         const classNames = element.className?.toString() || ''
                         return classNames.includes('recharts') || classNames.includes('chart')
                     },
                     onclone: (clonedDoc: Document) => {
-                        // Remove all lab() colors by checking computed styles
-                        const allElements = clonedDoc.querySelectorAll('*')
-                        allElements.forEach((el: any) => {
-                            try {
-                                const computedStyle = window.getComputedStyle(el)
-                                // Override any lab() colors with safe defaults
-                                if (computedStyle.color?.includes('lab')) {
-                                    el.style.color = 'rgb(0, 0, 0)' // Black
-                                }
-                                if (computedStyle.backgroundColor?.includes('lab')) {
-                                    el.style.backgroundColor = 'rgb(255, 255, 255)' // White
-                                }
-                                if (computedStyle.borderColor?.includes('lab')) {
-                                    el.style.borderColor = 'rgb(0, 0, 0)' // Black
-                                }
-                            } catch (e) {
-                                // Ignore elements that can't be styled
+                        console.log('Cleaning document for PDF...')
+
+                        // Remove ALL external stylesheets to avoid lab() colors from CSS
+                        const links = clonedDoc.querySelectorAll('link[rel="stylesheet"]')
+                        links.forEach(link => link.remove())
+
+                        // Remove all style tags with CSS that might contain lab()
+                        const styleTags = clonedDoc.querySelectorAll('style')
+                        styleTags.forEach(style => {
+                            if (style.textContent?.includes('lab(')) {
+                                style.remove()
                             }
                         })
-                        console.log('Cleaned lab() colors from clone')
+
+                        // Force basic styling on the content
+                        const content = clonedDoc.getElementById('proposal-content')
+                        if (content) {
+                            content.style.backgroundColor = '#ffffff'
+                            content.style.color = '#000000'
+                            content.style.fontFamily = 'Arial, sans-serif'
+                            content.style.fontSize = '12px'
+                            content.style.padding = '20mm'
+                        }
+
+                        console.log('Document cleaned for PDF')
                     }
                 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
