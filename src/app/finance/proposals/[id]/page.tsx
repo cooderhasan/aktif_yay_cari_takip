@@ -159,9 +159,9 @@ export default function ProposalDetailPage() {
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleDownloadPdf}>
+                    <Button variant="outline" onClick={handleDownloadPdf} disabled={isDownloading}>
                         <Download className="mr-2 h-4 w-4" />
-                        PDF İndir / Yazdır
+                        {isDownloading ? 'İndiriliyor...' : 'PDF İndir'}
                     </Button>
                     <Button variant="outline" onClick={handlePrint}>
                         <Printer className="mr-2 h-4 w-4" /> Yazdır
