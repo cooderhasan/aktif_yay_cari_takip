@@ -68,36 +68,31 @@ export default function ProposalDetailPage() {
             tempContainer.innerHTML = element.outerHTML
             document.body.appendChild(tempContainer)
 
+            // Renk dönüştürme fonksiyonu - tüm formatları RGB'ye çevirir
+            const colorToRgb = (color: string): string => {
+                if (!color || color === 'transparent' || color === 'rgba(0, 0, 0, 0)') return ''
+                if (color.startsWith('rgb(') || color.startsWith('rgba(')) return color
+                const canvas = document.createElement('canvas')
+                canvas.width = 1
+                canvas.height = 1
+                const ctx = canvas.getContext('2d')
+                if (!ctx) return '#000000'
+                ctx.fillStyle = color
+                ctx.fillRect(0, 0, 1, 1)
+                const data = ctx.getImageData(0, 0, 1, 1).data
+                return `rgb(${data[0]}, ${data[1]}, ${data[2]})`
+            }
+
             // Tüm elementlerdeki renkleri güvenli değerlere zorla
             const allElements = tempContainer.querySelectorAll('*')
             allElements.forEach((el: any) => {
                 const computed = window.getComputedStyle(el)
-
-                // Text rengi
-                if (computed.color) {
-                    const rgb = computed.color.match(/\d+/g)
-                    if (rgb && rgb.length >= 3) {
-                        el.style.color = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
-                    } else {
-                        el.style.color = '#000000'
-                    }
-                }
-
-                // Arka plan rengi
-                if (computed.backgroundColor && computed.backgroundColor !== 'rgba(0, 0, 0, 0)') {
-                    const rgb = computed.backgroundColor.match(/\d+/g)
-                    if (rgb && rgb.length >= 3) {
-                        el.style.backgroundColor = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
-                    }
-                }
-
-                // Border rengi
-                if (computed.borderColor) {
-                    const rgb = computed.borderColor.match(/\d+/g)
-                    if (rgb && rgb.length >= 3) {
-                        el.style.borderColor = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
-                    }
-                }
+                const textColor = colorToRgb(computed.color)
+                if (textColor) el.style.color = textColor
+                const bgColor = colorToRgb(computed.backgroundColor)
+                if (bgColor) el.style.backgroundColor = bgColor
+                const borderColor = colorToRgb(computed.borderTopColor)
+                if (borderColor) el.style.borderColor = borderColor
             })
 
             const opt = {
