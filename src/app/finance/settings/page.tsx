@@ -7,25 +7,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Save, Settings, LogOut, Globe, FileImage, CloudCog, Upload, Loader2 } from 'lucide-react'
+import { Save, Settings, LogOut, Globe, FileImage, CloudCog, Upload, Loader2, Download } from 'lucide-react'
 
-// Settings fetch
-async function getSettings() {
-    const res = await fetch('/api/settings')
-    if (!res.ok) throw new Error('Ayarlar yuklenemedi')
-    return res.json()
-}
-
-// Settings update
-async function updateSettings(data: any) {
-    const res = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    if (!res.ok) throw new Error('Ayarlar guncellenemedi')
-    return res.json()
-}
+// ... existing code ...
 
 export default function SettingsPage() {
     const router = useRouter()
@@ -44,9 +28,6 @@ export default function SettingsPage() {
         companyEmail: '',
         companyTaxNumber: '',
         companyTaxOffice: ''
-
-
-
     })
 
     const { data: settings, isLoading } = useQuery({
@@ -69,9 +50,6 @@ export default function SettingsPage() {
                 companyEmail: settings.companyEmail || '',
                 companyTaxNumber: settings.companyTaxNumber || '',
                 companyTaxOffice: settings.companyTaxOffice || ''
-
-
-
             })
         }
     }, [settings])
@@ -89,6 +67,7 @@ export default function SettingsPage() {
 
     const [uploadingLogo, setUploadingLogo] = useState(false)
     const [uploadingFavicon, setUploadingFavicon] = useState(false)
+    const [isRestoring, setIsRestoring] = useState(false)
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'logoUrl' | 'faviconUrl') => {
         const file = e.target.files?.[0]
@@ -438,6 +417,110 @@ export default function SettingsPage() {
                                     value={formData.companyTaxNumber}
                                     onChange={(e) => setFormData(prev => ({ ...prev, companyTaxNumber: e.target.value }))}
                                 />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Veri Yedekleme */}
+                <Card className="border-blue-200 bg-blue-50/50">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-blue-900">
+                            <CloudCog className="h-5 w-5" />
+                            Veri Yedekleme & Geri Yükleme
+                        </CardTitle>
+                        <CardDescription className="text-blue-700">
+                            Verilerinizin güvenliği için düzenli yedek alabilir veya yedekten geri dönebilirsiniz.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label className="text-blue-900 font-semibold">Yedek Alma (Export)</Label>
+                                <p className="text-xs text-blue-600 mb-2">
+                                    Tüm verilerinizi (Müşteriler, Satışlar, Teklifler vb.) JSON formatında indirir.
+                                </p>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-full border-blue-300 text-blue-700 hover:bg-blue-100"
+                                    onClick={() => window.open('/api/backup/export', '_blank')}
+                                >
+                                    <Download className="mr-2 h-4 w-4" />
+                                    Yedeği İndir
+                                </Button>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-red-900 font-semibold">Geri Yükleme (Import)</Label>
+                                <p className="text-xs text-red-600 mb-2">
+                                    Dikkat: Bu işlem mevcut tüm verileri siler ve seçilen yedeği yükler!
+                                </p>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="file"
+                                        id="backupUpload"
+                                        accept=".json"
+                                        className="hidden"
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0]
+                                            if (!file) return
+
+                                            if (!confirm('DİKKAT! Mevcut tüm verileriniz SİLİNECEK ve bu yedek dosyasındaki veriler yüklenecektir. Bu işlem geri alınamaz.\n\nEmin misiniz?')) {
+                                                e.target.value = ''
+                                                return
+                                            }
+
+                                            if (!confirm('SON UYARI: İşlemi onaylıyor musunuz?')) {
+                                                e.target.value = ''
+                                                return
+                                            }
+
+                                            try {
+                                                const text = await file.text()
+                                                const json = JSON.parse(text)
+
+                                                setIsRestoring(true)
+                                                const res = await fetch('/api/backup/import', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify(json)
+                                                })
+
+                                                const result = await res.json()
+                                                if (!res.ok) throw new Error(result.error)
+
+                                                alert('Başarılı: Yedek geri yüklendi! Sayfa yenileniyor...')
+                                                window.location.reload()
+                                            } catch (error) {
+                                                alert('Hata: ' + (error as any).message)
+                                            } finally {
+                                                setIsRestoring(false)
+                                                e.target.value = ''
+                                            }
+                                        }}
+                                        disabled={isRestoring}
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        className="w-full"
+                                        disabled={isRestoring}
+                                        onClick={() => document.getElementById('backupUpload')?.click()}
+                                    >
+                                        {isRestoring ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Yükleniyor...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload className="mr-2 h-4 w-4" />
+                                                Yedeği Geri Yükle
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </CardContent>
