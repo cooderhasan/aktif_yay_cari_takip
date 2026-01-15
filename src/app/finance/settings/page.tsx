@@ -9,6 +9,22 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Save, Settings, LogOut, Globe, FileImage, CloudCog, Upload, Loader2, Download } from 'lucide-react'
 
+async function getSettings() {
+    const res = await fetch('/api/settings')
+    if (!res.ok) throw new Error('Ayarlar alınamadı')
+    return res.json()
+}
+
+async function updateSettings(data: any) {
+    const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    if (!res.ok) throw new Error('Ayarlar güncellenemedi')
+    return res.json()
+}
+
 // ... existing code ...
 
 export default function SettingsPage() {
