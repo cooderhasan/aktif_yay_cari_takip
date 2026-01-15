@@ -3,7 +3,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Script from 'next/script'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Printer, Pencil, ArrowLeft, Trash2, Mail, Download } from 'lucide-react'
@@ -25,15 +24,7 @@ export default function ProposalDetailPage() {
     const params = useParams()
     const router = useRouter()
     const id = params.id as string
-    const [isPdfReady, setIsPdfReady] = useState(false)
-
-    // Check if script is already loaded (e.g. from previous navigation)
-    useEffect(() => {
-        // @ts-ignore
-        if (typeof window !== 'undefined' && window.html2pdf) {
-            setIsPdfReady(true)
-        }
-    }, [])
+    const [isDownloading, setIsDownloading] = useState(false)
 
     const { data: proposal, isLoading: isLoadingProposal } = useQuery({
         queryKey: ['proposal', id],
@@ -49,22 +40,37 @@ export default function ProposalDetailPage() {
         window.print()
     }
 
-    const handleDownloadPdf = () => {
-        const element = document.getElementById('proposal-content')
-        const opt = {
-            margin: 0,
-            filename: `Teklif-${proposal.proposalNumber}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        }
+    const handleDownloadPdf = async () => {
+        setIsDownloading(true)
 
-        // @ts-ignore
-        if (window.html2pdf) {
+        try {
             // @ts-ignore
-            window.html2pdf().set(opt).from(element).save()
-        } else {
-            alert('PDF oluşturucu yüklenemedi, lütfen sayfayı yenileyip tekrar deneyin.')
+            if (!window.html2pdf) {
+                // Load library on-demand
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script')
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+                    script.onload = resolve
+                    script.onerror = reject
+                    document.head.appendChild(script)
+                })
+            }
+
+            const element = document.getElementById('proposal-content')
+            const opt = {
+                margin: 0,
+                filename: `Teklif-${proposal.proposalNumber}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            }
+
+            // @ts-ignore
+            await window.html2pdf().set(opt).from(element).save()
+        } catch (error) {
+            alert('PDF oluşturulurken hata oluştu. Lütfen tekrar deneyin.')
+        } finally {
+            setIsDownloading(false)
         }
     }
 
@@ -106,9 +112,9 @@ export default function ProposalDetailPage() {
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleDownloadPdf} disabled={!isPdfReady}>
+                    <Button variant="outline" onClick={handleDownloadPdf} disabled={isDownloading}>
                         <Download className="mr-2 h-4 w-4" />
-                        {isPdfReady ? 'PDF İndir' : 'Yükleniyor...'}
+                        {isDownloading ? 'İndiriliyor...' : 'PDF İndir'}
                     </Button>
                     <Button variant="outline" onClick={handlePrint}>
                         <Printer className="mr-2 h-4 w-4" /> Yazdır
@@ -320,16 +326,7 @@ export default function ProposalDetailPage() {
                     }
                 }
             `}</style>
-            {/* Script logic moved inside component to access state */}
-            <Script
-                src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
-                strategy="afterInteractive"
-                onLoad={() => setIsPdfReady(true)}
-                onError={() => {
-                    alert('PDF kütüphanesi yüklenemedi. Lütfen sayfayı yenileyin.');
-                    setIsPdfReady(false);
-                }}
-            />
+
         </div>
     )
 }
