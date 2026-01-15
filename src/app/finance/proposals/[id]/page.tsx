@@ -24,6 +24,7 @@ export default function ProposalDetailPage() {
     const params = useParams()
     const router = useRouter()
     const id = params.id as string
+    const [isDownloading, setIsDownloading] = useState(false)
 
     const { data: proposal, isLoading: isLoadingProposal } = useQuery({
         queryKey: ['proposal', id],
@@ -39,9 +40,85 @@ export default function ProposalDetailPage() {
         window.print()
     }
 
-    const handleDownloadPdf = () => {
-        // Tarayıcının yazdırma dialogunu aç - "PDF olarak kaydet" seçilebilir
-        window.print()
+    const handleDownloadPdf = async () => {
+        setIsDownloading(true)
+
+        try {
+            // @ts-ignore
+            if (!window.html2pdf) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script')
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+                    script.onload = resolve
+                    script.onerror = reject
+                    document.head.appendChild(script)
+                })
+                await new Promise(resolve => setTimeout(resolve, 100))
+            }
+
+            const element = document.getElementById('proposal-content')
+            if (!element) throw new Error('Content not found')
+
+            // Geçici bir container oluştur ve içine klonla
+            const tempContainer = document.createElement('div')
+            tempContainer.style.position = 'absolute'
+            tempContainer.style.left = '-9999px'
+            tempContainer.style.top = '0'
+            tempContainer.style.width = '210mm'
+            tempContainer.innerHTML = element.outerHTML
+            document.body.appendChild(tempContainer)
+
+            // Tüm elementlerdeki renkleri güvenli değerlere zorla
+            const allElements = tempContainer.querySelectorAll('*')
+            allElements.forEach((el: any) => {
+                const computed = window.getComputedStyle(el)
+
+                // Text rengi
+                if (computed.color) {
+                    const rgb = computed.color.match(/\d+/g)
+                    if (rgb && rgb.length >= 3) {
+                        el.style.color = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
+                    } else {
+                        el.style.color = '#000000'
+                    }
+                }
+
+                // Arka plan rengi
+                if (computed.backgroundColor && computed.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+                    const rgb = computed.backgroundColor.match(/\d+/g)
+                    if (rgb && rgb.length >= 3) {
+                        el.style.backgroundColor = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
+                    }
+                }
+
+                // Border rengi
+                if (computed.borderColor) {
+                    const rgb = computed.borderColor.match(/\d+/g)
+                    if (rgb && rgb.length >= 3) {
+                        el.style.borderColor = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
+                    }
+                }
+            })
+
+            const opt = {
+                margin: 0,
+                filename: `Teklif-${proposal.proposalNumber}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            }
+
+            // @ts-ignore
+            await window.html2pdf().set(opt).from(tempContainer.firstChild).save()
+
+            // Temizle
+            document.body.removeChild(tempContainer)
+        } catch (error) {
+            console.error('PDF error:', error)
+            alert('PDF oluşturulurken hata oluştu. Lütfen tekrar deneyin.')
+        } finally {
+            setIsDownloading(false)
+        }
     }
 
     const handleDelete = async () => {
