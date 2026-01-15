@@ -75,36 +75,22 @@ export default function ProposalDetailPage() {
                     logging: false,
                     backgroundColor: '#ffffff',
                     ignoreElements: (element: Element) => {
-                        // Skip charts and any problematic elements
                         const classNames = element.className?.toString() || ''
                         return classNames.includes('recharts') || classNames.includes('chart')
                     },
                     onclone: (clonedDoc: Document) => {
-                        console.log('Cleaning document for PDF...')
-
-                        // Remove ALL external stylesheets to avoid lab() colors from CSS
-                        const links = clonedDoc.querySelectorAll('link[rel="stylesheet"]')
-                        links.forEach(link => link.remove())
-
-                        // Remove all style tags with CSS that might contain lab()
-                        const styleTags = clonedDoc.querySelectorAll('style')
-                        styleTags.forEach(style => {
-                            if (style.textContent?.includes('lab(')) {
-                                style.remove()
-                            }
-                        })
-
-                        // Force basic styling on the content
-                        const content = clonedDoc.getElementById('proposal-content')
-                        if (content) {
-                            content.style.backgroundColor = '#ffffff'
-                            content.style.color = '#000000'
-                            content.style.fontFamily = 'Arial, sans-serif'
-                            content.style.fontSize = '12px'
-                            content.style.padding = '20mm'
+                        try {
+                            // Safe fix: check computed styles for lab() colors
+                            const allElements = clonedDoc.querySelectorAll('*')
+                            allElements.forEach((el: any) => {
+                                const style = window.getComputedStyle(el)
+                                if (style.color?.includes('lab(')) el.style.color = '#000000'
+                                if (style.backgroundColor?.includes('lab(')) el.style.backgroundColor = '#ffffff'
+                                if (style.borderColor?.includes('lab(')) el.style.borderColor = '#000000'
+                            })
+                        } catch (e) {
+                            console.error('PDF color cleanup error:', e)
                         }
-
-                        console.log('Document cleaned for PDF')
                     }
                 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
