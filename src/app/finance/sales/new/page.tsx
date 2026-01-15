@@ -39,7 +39,7 @@ export default function NewSalePage() {
     const [slipDate, setSlipDate] = useState(new Date().toISOString().split('T')[0])
     const [currencyCode, setCurrencyCode] = useState('TL')
     const [items, setItems] = useState([
-        { productName: '', quantity: 1, unitPrice: 0 }
+        { productName: '', quantity: 1, unitPrice: 0, lineTotal: '0.00' }
     ])
 
     const { data: customers } = useQuery({
@@ -64,7 +64,7 @@ export default function NewSalePage() {
     }
 
     const handleAddItem = () => {
-        setItems([...items, { productName: '', quantity: 1, unitPrice: 0 }])
+        setItems([...items, { productName: '', quantity: 1, unitPrice: 0, lineTotal: '0.00' }])
     }
 
     const handleRemoveItem = (index: number) => {
@@ -75,13 +75,27 @@ export default function NewSalePage() {
 
     const handleItemChange = (index: number, field: string, value: any) => {
         const newItems: any = [...items]
-        // If changing Amount (total), calculate unitPrice
+
         if (field === 'amount') {
+            // Tutar değiştiğinde: lineTotal'i güncelle, Birim Fiyatı hesapla
+            newItems[index].lineTotal = value
             const amount = parseFloat(value)
             const quantity = newItems[index].quantity || 1
-            newItems[index].unitPrice = amount / quantity
+            if (!isNaN(amount)) {
+                newItems[index].unitPrice = amount / quantity
+            }
         } else {
+            // Diğer alanlar değiştiğinde
             newItems[index][field] = value
+
+            // Miktar veya Birim Fiyat değişirse Tutarı (lineTotal) güncelle
+            if (field === 'quantity' || field === 'unitPrice') {
+                const qty = field === 'quantity' ? parseFloat(value) : newItems[index].quantity
+                const price = field === 'unitPrice' ? parseFloat(value) : newItems[index].unitPrice
+                if (!isNaN(qty) && !isNaN(price)) {
+                    newItems[index].lineTotal = (qty * price).toFixed(2)
+                }
+            }
         }
         setItems(newItems)
     }
@@ -234,7 +248,7 @@ export default function NewSalePage() {
                                             min="0"
                                             step="0.01"
                                             className="text-right"
-                                            value={(item.quantity * item.unitPrice).toFixed(2)}
+                                            value={item.lineTotal}
                                             onChange={(e) => handleItemChange(index, 'amount', e.target.value)}
                                         />
                                     </TableCell>

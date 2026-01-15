@@ -39,6 +39,25 @@ export default function ProposalDetailPage() {
         window.print()
     }
 
+    const handleDownloadPdf = () => {
+        const element = document.getElementById('proposal-content')
+        const opt = {
+            margin: 0,
+            filename: `Teklif-${proposal.proposalNumber}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        }
+
+        // @ts-ignore
+        if (window.html2pdf) {
+            // @ts-ignore
+            window.html2pdf().set(opt).from(element).save()
+        } else {
+            alert('PDF oluşturucu yüklenemedi, lütfen sayfayı yenileyip tekrar deneyin.')
+        }
+    }
+
     const handleDelete = async () => {
         if (!confirm('Bu teklifi silmek istediğinize emin misiniz?')) return
 
@@ -77,8 +96,11 @@ export default function ProposalDetailPage() {
                     </div>
                 </div>
                 <div className="flex gap-2">
+                    <Button variant="outline" onClick={handleDownloadPdf}>
+                        <Download className="mr-2 h-4 w-4" /> PDF İndir
+                    </Button>
                     <Button variant="outline" onClick={handlePrint}>
-                        <Printer className="mr-2 h-4 w-4" /> Yazdır / PDF
+                        <Printer className="mr-2 h-4 w-4" /> Yazdır
                     </Button>
                     <Link href={`/finance/proposals/${id}/edit`}>
                         <Button variant="secondary">
@@ -100,7 +122,7 @@ export default function ProposalDetailPage() {
                     p-[10mm] md:p-[20mm] print:p-0 
                     flex flex-col justify-between 
                     text-sm leading-relaxed
-                `}>
+                `} id="proposal-content">
                     {/* --- REPORT CONTENT START --- */}
 
                     {/* Header */}
@@ -282,11 +304,12 @@ export default function ProposalDetailPage() {
                         background: white;
                     }
                     /* Hide everything else */
-                    nav, aside, header, footer {
+                    nav, aside, header, footer, .no-print {
                         display: none !important;
                     }
                 }
             `}</style>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossOrigin="anonymous" referrerPolicy="no-referrer"></script>
         </div>
     )
 }
