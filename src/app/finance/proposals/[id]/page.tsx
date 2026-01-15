@@ -54,6 +54,9 @@ export default function ProposalDetailPage() {
                     script.onerror = reject
                     document.head.appendChild(script)
                 })
+
+                // Wait for library to initialize
+                await new Promise(resolve => setTimeout(resolve, 100))
             }
 
             const element = document.getElementById('proposal-content')
@@ -65,9 +68,13 @@ export default function ProposalDetailPage() {
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             }
 
-            // @ts-ignore
-            await window.html2pdf().set(opt).from(element).save()
+            // @ts-ignore - save() is not async
+            window.html2pdf().set(opt).from(element).save()
+
+            // Brief delay before re-enabling
+            await new Promise(resolve => setTimeout(resolve, 500))
         } catch (error) {
+            console.error('PDF error:', error)
             alert('PDF oluşturulurken hata oluştu. Lütfen tekrar deneyin.')
         } finally {
             setIsDownloading(false)
