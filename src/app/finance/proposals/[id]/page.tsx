@@ -3,10 +3,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Script from 'next/script'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Printer, Pencil, ArrowLeft, Trash2, Mail, Download } from 'lucide-react'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 
 async function getProposal(id: string) {
     const res = await fetch(`/api/proposals/${id}`)
@@ -24,6 +25,7 @@ export default function ProposalDetailPage() {
     const params = useParams()
     const router = useRouter()
     const id = params.id as string
+    const [isPdfReady, setIsPdfReady] = useState(false)
 
     const { data: proposal, isLoading: isLoadingProposal } = useQuery({
         queryKey: ['proposal', id],
@@ -96,8 +98,9 @@ export default function ProposalDetailPage() {
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleDownloadPdf}>
-                        <Download className="mr-2 h-4 w-4" /> PDF İndir
+                    <Button variant="outline" onClick={handleDownloadPdf} disabled={!isPdfReady}>
+                        <Download className="mr-2 h-4 w-4" />
+                        {isPdfReady ? 'PDF İndir' : 'Yükleniyor...'}
                     </Button>
                     <Button variant="outline" onClick={handlePrint}>
                         <Printer className="mr-2 h-4 w-4" /> Yazdır
@@ -180,7 +183,7 @@ export default function ProposalDetailPage() {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b-2 border-slate-800 text-xs font-bold text-slate-700 uppercase tracking-wider">
-                                    <th className="py-2 pl-2 w-16">Kod</th>
+                                    <th className="py-2 pl-2 w-28">Kod</th>
                                     <th className="py-2">Ürün / Açıklama</th>
                                     <th className="py-2 text-right w-20">Miktar</th>
                                     <th className="py-2 text-right w-24">Birim Fiyat</th>
@@ -190,7 +193,7 @@ export default function ProposalDetailPage() {
                             <tbody className="text-sm">
                                 {proposal.items?.map((item: any, i: number) => (
                                     <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 print:hover:bg-transparent">
-                                        <td className="py-3 pl-2 font-mono text-xs text-slate-500">{item.stockCode}</td>
+                                        <td className="py-3 pl-2 pr-4 font-mono text-xs text-slate-500 whitespace-nowrap">{item.stockCode}</td>
                                         <td className="py-3 pr-4">
                                             <div className="font-semibold text-slate-800">{item.productName}</div>
                                             {item.description && (
@@ -309,7 +312,11 @@ export default function ProposalDetailPage() {
                     }
                 }
             `}</style>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossOrigin="anonymous" referrerPolicy="no-referrer"></script>
+            <Script
+                src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+                strategy="lazyOnload"
+                onLoad={() => setIsPdfReady(true)}
+            />
         </div>
     )
 }
