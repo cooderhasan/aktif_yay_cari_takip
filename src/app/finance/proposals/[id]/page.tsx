@@ -73,7 +73,19 @@ export default function ProposalDetailPage() {
                     scale: 2,
                     useCORS: true,
                     logging: false,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    onclone: (clonedDoc: Document) => {
+                        // Remove lab() colors to avoid parse error
+                        const allElements = clonedDoc.querySelectorAll('*')
+                        allElements.forEach((el: any) => {
+                            if (el.style) {
+                                if (el.style.color?.includes('lab')) el.style.color = '#000000'
+                                if (el.style.backgroundColor?.includes('lab')) el.style.backgroundColor = '#ffffff'
+                                if (el.style.borderColor?.includes('lab')) el.style.borderColor = '#000000'
+                            }
+                        })
+                        console.log('Cleaned lab() colors from clone')
+                    }
                 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             }
