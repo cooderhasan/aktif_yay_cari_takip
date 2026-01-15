@@ -24,7 +24,6 @@ export default function ProposalDetailPage() {
     const params = useParams()
     const router = useRouter()
     const id = params.id as string
-    const [isDownloading, setIsDownloading] = useState(false)
 
     const { data: proposal, isLoading: isLoadingProposal } = useQuery({
         queryKey: ['proposal', id],
@@ -40,41 +39,9 @@ export default function ProposalDetailPage() {
         window.print()
     }
 
-    const handleDownloadPdf = async () => {
-        setIsDownloading(true)
-
-        try {
-            // @ts-ignore
-            if (!window.html2pdf) {
-                await new Promise((resolve, reject) => {
-                    const script = document.createElement('script')
-                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
-                    script.onload = resolve
-                    script.onerror = reject
-                    document.head.appendChild(script)
-                })
-                await new Promise(resolve => setTimeout(resolve, 100))
-            }
-
-            const element = document.getElementById('proposal-content')
-            if (!element) throw new Error('Content not found')
-
-            const opt = {
-                margin: 0,
-                filename: `Teklif-${proposal.proposalNumber}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            }
-
-            // @ts-ignore
-            await window.html2pdf().set(opt).from(element).save()
-        } catch (error) {
-            console.error('PDF error:', error)
-            alert('PDF oluşturulurken hata oluştu. Lütfen tekrar deneyin.')
-        } finally {
-            setIsDownloading(false)
-        }
+    const handleDownloadPdf = () => {
+        // Tarayıcının yazdırma dialogunu aç - "PDF olarak kaydet" seçilebilir
+        window.print()
     }
 
     const handleDelete = async () => {
@@ -115,9 +82,9 @@ export default function ProposalDetailPage() {
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleDownloadPdf} disabled={isDownloading}>
+                    <Button variant="outline" onClick={handleDownloadPdf}>
                         <Download className="mr-2 h-4 w-4" />
-                        {isDownloading ? 'İndiriliyor...' : 'PDF İndir'}
+                        PDF İndir / Yazdır
                     </Button>
                     <Button variant="outline" onClick={handlePrint}>
                         <Printer className="mr-2 h-4 w-4" /> Yazdır
