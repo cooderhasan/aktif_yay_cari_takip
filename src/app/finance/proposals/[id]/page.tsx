@@ -74,14 +74,29 @@ export default function ProposalDetailPage() {
                     useCORS: true,
                     logging: false,
                     backgroundColor: '#ffffff',
+                    ignoreElements: (element: Element) => {
+                        // Skip elements that might have lab() colors in classes
+                        const classNames = element.className?.toString() || ''
+                        return classNames.includes('recharts') || classNames.includes('chart')
+                    },
                     onclone: (clonedDoc: Document) => {
-                        // Remove lab() colors to avoid parse error
+                        // Remove all lab() colors by checking computed styles
                         const allElements = clonedDoc.querySelectorAll('*')
                         allElements.forEach((el: any) => {
-                            if (el.style) {
-                                if (el.style.color?.includes('lab')) el.style.color = '#000000'
-                                if (el.style.backgroundColor?.includes('lab')) el.style.backgroundColor = '#ffffff'
-                                if (el.style.borderColor?.includes('lab')) el.style.borderColor = '#000000'
+                            try {
+                                const computedStyle = window.getComputedStyle(el)
+                                // Override any lab() colors with safe defaults
+                                if (computedStyle.color?.includes('lab')) {
+                                    el.style.color = 'rgb(0, 0, 0)' // Black
+                                }
+                                if (computedStyle.backgroundColor?.includes('lab')) {
+                                    el.style.backgroundColor = 'rgb(255, 255, 255)' // White
+                                }
+                                if (computedStyle.borderColor?.includes('lab')) {
+                                    el.style.borderColor = 'rgb(0, 0, 0)' // Black
+                                }
+                            } catch (e) {
+                                // Ignore elements that can't be styled
                             }
                         })
                         console.log('Cleaned lab() colors from clone')
