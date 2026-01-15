@@ -27,6 +27,14 @@ export default function ProposalDetailPage() {
     const id = params.id as string
     const [isPdfReady, setIsPdfReady] = useState(false)
 
+    // Check if script is already loaded (e.g. from previous navigation)
+    useEffect(() => {
+        // @ts-ignore
+        if (typeof window !== 'undefined' && window.html2pdf) {
+            setIsPdfReady(true)
+        }
+    }, [])
+
     const { data: proposal, isLoading: isLoadingProposal } = useQuery({
         queryKey: ['proposal', id],
         queryFn: () => getProposal(id)
@@ -312,10 +320,15 @@ export default function ProposalDetailPage() {
                     }
                 }
             `}</style>
+            {/* Script logic moved inside component to access state */}
             <Script
                 src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
-                strategy="lazyOnload"
+                strategy="afterInteractive"
                 onLoad={() => setIsPdfReady(true)}
+                onError={() => {
+                    alert('PDF kütüphanesi yüklenemedi. Lütfen sayfayı yenileyin.');
+                    setIsPdfReady(false);
+                }}
             />
         </div>
     )
