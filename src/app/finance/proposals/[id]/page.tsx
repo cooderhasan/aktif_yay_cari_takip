@@ -196,7 +196,7 @@ export default function ProposalDetailPage() {
                                 />
                             )}
                             <h1 className="text-xl font-bold text-slate-900 mb-1">{settings?.companyTitle || settings?.siteTitle}</h1>
-                            <div className="text-xs text-slate-500 space-y-0.5">
+                            <div className="text-xs text-slate-700 space-y-0.5">
                                 <p>{settings?.companyAddress}</p>
                                 <p>{settings?.companyCity} / {settings?.companyDistrict}</p>
                                 <p>Tel: {settings?.companyPhone} | E-posta: {settings?.companyEmail}</p>
@@ -224,10 +224,10 @@ export default function ProposalDetailPage() {
                     <div className="mb-8">
                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">Sayın Yetkili</h3>
                         <div className="text-base font-semibold text-slate-900">{proposal.customer?.title}</div>
-                        <div className="text-sm text-slate-600 mt-1">
+                        <div className="text-sm text-slate-800 mt-1">
                             {proposal.customer?.address && <p>{proposal.customer.address}</p>}
                             {proposal.customer?.city && <p>{proposal.customer.city} / {proposal.customer?.district}</p>}
-                            <div className="mt-2 text-xs text-slate-500">
+                            <div className="mt-2 text-xs text-slate-700">
                                 {proposal.customer?.phone && <span>Tel: {proposal.customer.phone} </span>}
                                 {proposal.customer?.email && <span>| E-posta: {proposal.customer.email}</span>}
                             </div>
