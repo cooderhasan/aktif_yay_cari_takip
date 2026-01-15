@@ -73,9 +73,9 @@ export default function ProposalDetailPage() {
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             }
 
-            // @ts-ignore - Use worker variable
+            // @ts-ignore - Use outputPdf to ensure download
             const worker = window.html2pdf()
-            worker.set(opt).from(element).save()
+            await worker.set(opt).from(element).outputPdf('save')
 
             console.log('PDF save called')
 
