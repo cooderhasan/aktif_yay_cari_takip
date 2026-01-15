@@ -75,7 +75,14 @@ export default function NewSalePage() {
 
     const handleItemChange = (index: number, field: string, value: any) => {
         const newItems: any = [...items]
-        newItems[index][field] = value
+        // If changing Amount (total), calculate unitPrice
+        if (field === 'amount') {
+            const amount = parseFloat(value)
+            const quantity = newItems[index].quantity || 1
+            newItems[index].unitPrice = amount / quantity
+        } else {
+            newItems[index][field] = value
+        }
         setItems(newItems)
     }
 
@@ -222,7 +229,14 @@ export default function NewSalePage() {
                                         />
                                     </TableCell>
                                     <TableCell className="text-right font-medium">
-                                        {(item.quantity * item.unitPrice).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            className="text-right"
+                                            value={(item.quantity * item.unitPrice).toFixed(2)}
+                                            onChange={(e) => handleItemChange(index, 'amount', e.target.value)}
+                                        />
                                     </TableCell>
                                     <TableCell>
                                         <Button

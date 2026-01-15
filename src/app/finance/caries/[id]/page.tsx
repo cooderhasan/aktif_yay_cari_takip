@@ -50,11 +50,11 @@ async function getCari(id: string) {
     return res.json()
 }
 
-async function getStatement(cariId: string, currencyCode: string = 'TL') {
+async function getStatement(cariId: string) {
     const res = await fetch(`/api/reports/statement`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cariId, currencyCode })
+        body: JSON.stringify({ cariId, currencyCode: 'ALL' })
     })
     if (!res.ok) throw new Error('Ekstre alınamadı')
     return res.json()
@@ -96,6 +96,7 @@ export default function CariDetailPage({ params }: { params: Promise<{ id: strin
     const [form, setForm] = useState({
         amount: '',
         description: '',
+        currencyCode: 'TL',
         date: new Date().toISOString().split('T')[0]
     })
     const [submitting, setSubmitting] = useState(false)
@@ -111,15 +112,21 @@ export default function CariDetailPage({ params }: { params: Promise<{ id: strin
     const currencyCode = cari?.defaultCurrency?.code || 'TL'
 
     const { data: statementData, isLoading: loadingStatement } = useQuery({
-        queryKey: ['statement', id, currencyCode],
-        queryFn: () => getStatement(id, currencyCode),
+        queryKey: ['statement', id],
+        queryFn: () => getStatement(id),
         enabled: !!cari
     })
 
     const handleTransaction = (type: 'COLLECTION' | 'PAYMENT') => {
         setActionType(type)
         setEditingId(null)
-        setForm({ amount: '', description: '', date: new Date().toISOString().split('T')[0] })
+        setEditingId(null)
+        setForm({
+            amount: '',
+            description: '',
+            currencyCode: cari?.defaultCurrency?.code || 'TL',
+            date: new Date().toISOString().split('T')[0]
+        })
         setTransactionDialogOpen(true)
     }
 
@@ -138,6 +145,7 @@ export default function CariDetailPage({ params }: { params: Promise<{ id: strin
         setForm({
             amount: (transaction.credit > 0 ? transaction.credit : transaction.debit).toString(),
             description: transaction.description,
+            currencyCode: transaction.currency?.code || 'TL',
             date: new Date(transaction.transactionDate).toISOString().split('T')[0]
         })
         setTransactionDialogOpen(true)
@@ -182,7 +190,7 @@ export default function CariDetailPage({ params }: { params: Promise<{ id: strin
                     paymentType: actionType,
                     method: 'CASH',
                     amount: parseFloat(form.amount),
-                    currencyCode: currencyCode,
+                    currencyCode: form.currencyCode,
                     paymentDate: form.date,
                     description: form.description
                 })
@@ -290,6 +298,7 @@ export default function CariDetailPage({ params }: { params: Promise<{ id: strin
                                         <TableHead>Açıklama</TableHead>
                                         <TableHead className="text-right text-rose-600">Borç</TableHead>
                                         <TableHead className="text-right text-emerald-600">Alacak</TableHead>
+                                        <TableHead className="w-[80px] text-center">Döviz</TableHead>
                                         <TableHead className="text-right">Bakiye</TableHead>
                                         <TableHead className="w-[100px]"></TableHead>
                                     </TableRow>
@@ -304,6 +313,9 @@ export default function CariDetailPage({ params }: { params: Promise<{ id: strin
                                             </TableCell>
                                             <TableCell className="text-right font-mono text-emerald-600">
                                                 {row.credit > 0 ? row.credit.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) : '-'}
+                                            </TableCell>
+                                            <TableCell className="text-center text-xs font-bold text-slate-500">
+                                                {row.currency?.code}
                                             </TableCell>
                                             <TableCell className="text-right font-mono font-bold">
                                                 {row.balance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
@@ -364,14 +376,25 @@ export default function CariDetailPage({ params }: { params: Promise<{ id: strin
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="grid gap-2">
-                            <Label>Tutar ({currencyCode})</Label>
-                            <Input
-                                type="number"
-                                step="0.01"
-                                placeholder="0.00"
-                                value={form.amount}
-                                onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                            />
+                            <Label>Tutar</Label>
+                            <div className="flex gap-2">
+                                <Input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    value={form.amount}
+                                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                                />
+                                <select
+                                    className="flex h-10 w-24 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                    value={form.currencyCode}
+                                    onChange={(e) => setForm({ ...form, currencyCode: e.target.value })}
+                                >
+                                    <option value="TL">TL</option>
+                                    <option value="USD">USD</option>
+                                    <option value="EUR">EUR</option>
+                                </select>
+                            </div>
                         </div>
                         <div className="grid gap-2">
                             <Label>Açıklama</Label>

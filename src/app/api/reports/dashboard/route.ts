@@ -88,21 +88,33 @@ export async function GET(request: Request) {
         }))
 
         // Sıralama
+        // Sıralama
         const topDebtors = detailedBalances
-            .filter(c => (c.balances['TL'] || 0) > 0)
-            .sort((a, b) => (b.balances['TL'] || 0) - (a.balances['TL'] || 0))
+            .filter(c => Object.values(c.balances).some((val: any) => val > 0))
+            .sort((a, b) => {
+                // Basit sıralama: Herhangi bir dövizdeki en yüksek bakiye
+                const maxA = Math.max(...Object.values(a.balances).map((v: any) => v || 0))
+                const maxB = Math.max(...Object.values(b.balances).map((v: any) => v || 0))
+                return maxB - maxA
+            })
             .slice(0, 5)
 
         const topCreditors = detailedBalances
-            .filter(c => (c.balances['TL'] || 0) < 0)
-            .sort((a, b) => (a.balances['TL'] || 0) - (b.balances['TL'] || 0)) // En küçük (en borçlu olduğumuz)
+            .filter(c => Object.values(c.balances).some((val: any) => val < 0))
+            .sort((a, b) => {
+                // En küçük (en negatif) olanı bul
+                const minA = Math.min(...Object.values(a.balances).map((v: any) => v || 0))
+                const minB = Math.min(...Object.values(b.balances).map((v: any) => v || 0))
+                return minA - minB
+            })
             .slice(0, 5)
             .map(c => ({
                 ...c,
-                balances: {
-                    ...c.balances,
-                    TL: Math.abs(c.balances['TL'] || 0) // UI'da pozitif göstermek için
-                }
+                // UI için tüm bakiyeleri mutlak değere çevir
+                balances: Object.entries(c.balances).reduce((acc: any, [key, val]: [string, any]) => {
+                    acc[key] = Math.abs(val)
+                    return acc
+                }, {})
             }))
 
 

@@ -209,11 +209,9 @@ export default function DashboardPage() {
                                                 boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
                                             }}
                                         />
-                                        <Bar dataKey="balances.TL" radius={[0, 8, 8, 0]} name="Bakiye (TL)">
-                                            {data.topDebtors.map((entry: any, index: number) => (
-                                                <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
-                                            ))}
-                                        </Bar>
+                                        <Bar dataKey="balances.TL" radius={[0, 8, 8, 0]} name="TL" fill="#10b981" stackId="a" />
+                                        <Bar dataKey="balances.USD" radius={[0, 8, 8, 0]} name="USD" fill="#06b6d4" stackId="a" />
+                                        <Bar dataKey="balances.EUR" radius={[0, 8, 8, 0]} name="EUR" fill="#8b5cf6" stackId="a" />
                                     </BarChart>
                                 </ResponsiveContainer>
                             ) : (
@@ -254,9 +252,15 @@ export default function DashboardPage() {
                                         <p className="text-xs text-slate-500">{creditor.type === 'SUPPLIER' ? 'Tedarikçi' : creditor.type}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="font-bold text-rose-600">
-                                            {creditor.balances?.TL?.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} ₺
-                                        </p>
+                                        <div className="flex flex-col gap-1 items-end">
+                                            {Object.entries(creditor.balances).map(([curr, amount]: [string, any]) => (
+                                                amount > 0 && (
+                                                    <span key={curr} className="font-bold text-rose-600">
+                                                        {amount.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {curr}
+                                                    </span>
+                                                )
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             ))}

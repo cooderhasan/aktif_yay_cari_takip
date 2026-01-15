@@ -9,23 +9,31 @@ export async function POST(request: Request) {
         const body = await request.json()
         const { cariId, startDate, endDate, currencyCode } = body
 
-        if (!cariId || !currencyCode) {
-            return NextResponse.json({ error: 'Cari ve Para Birimi seçimi zorunludur.' }, { status: 400 })
+        if (!cariId) {
+            return NextResponse.json({ error: 'Cari seçimi zorunludur.' }, { status: 400 })
         }
 
         // 1. İlgili para birimindeki o carinin tüm hareketlerini çek
         // Tarih filtresi varsa uygula
         const whereClause: any = {
-            cariId: parseInt(cariId),
-            currency: {
+            cariId: parseInt(cariId)
+        }
+
+        // Eğer currencyCode 'ALL' değilse filtrele
+        if (currencyCode && currencyCode !== 'ALL') {
+            whereClause.currency = {
                 code: currencyCode
             }
         }
 
         if (startDate && endDate) {
+            // End date varsa günün sonuna çek (23:59:59.999)
+            const end = new Date(endDate)
+            end.setHours(23, 59, 59, 999)
+
             whereClause.transactionDate = {
                 gte: new Date(startDate),
-                lte: new Date(endDate)
+                lte: end
             }
         }
 
