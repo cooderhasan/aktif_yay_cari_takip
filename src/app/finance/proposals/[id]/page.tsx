@@ -60,6 +60,11 @@ export default function ProposalDetailPage() {
             }
 
             const element = document.getElementById('proposal-content')
+            if (!element) {
+                throw new Error('Content element not found')
+            }
+
+            console.log('Starting PDF generation for:', proposal.proposalNumber)
             const opt = {
                 margin: 0,
                 filename: `Teklif-${proposal.proposalNumber}.pdf`,
@@ -68,8 +73,11 @@ export default function ProposalDetailPage() {
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             }
 
-            // @ts-ignore - save() is not async
-            window.html2pdf().set(opt).from(element).save()
+            // @ts-ignore - Use worker variable
+            const worker = window.html2pdf()
+            worker.set(opt).from(element).save()
+
+            console.log('PDF save called')
 
             // Brief delay before re-enabling
             await new Promise(resolve => setTimeout(resolve, 500))
